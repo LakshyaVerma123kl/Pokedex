@@ -1,52 +1,77 @@
 # Pokedex Lite
 
-A responsive, highly interactive "Pokedex Lite" web application built for the Frontend Developer Assignment.
+A responsive, interactive "Pokedex Lite" web application built with Next.js, Tailwind CSS, and Framer Motion.
 
 ## Features
 
-- **Data Fetching:** Real-time data from PokeAPI with graceful loading states.
+### Mandatory
+- **Data Fetching:** Real-time data from PokeAPI with graceful loading and error states.
 - **Listing & Basic UI:** Beautiful grid layout displaying Pokemon with official artwork sprites.
-- **Search:** Real-time client-side search across Pokemon.
-- **Filtering by Type:** Dynamic type pills allowing users to quickly filter the Pokemon list.
-- **Pagination:** Handles pagination effortlessly using Next.js client-side state.
-- **Favorites:** Fully persistent favoriting system (using `localStorage`).
-- **Detail View:** Deep dive modal showing stats, abilities, and dimension metrics with smooth animations.
-- **Animations:** Premium Framer Motion UI transitions, micro-interactions, and hover states.
-- **Responsive:** Works perfectly on mobile, tablet, and desktop viewports.
+- **Search:** Real-time client-side search across Pokemon names.
+- **Filtering by Type:** Dynamic type filter pills for narrowing down the Pokemon list.
+- **Pagination:** Handles pagination with Previous/Next controls and page indicators.
+- **Favorites:** Fully persistent favoriting system using `localStorage`.
+- **Detail View:** Modal view showing stats, abilities, weight, height, and type badges with animated stat bars.
+- **Responsive Design:** Works perfectly on mobile, tablet, and desktop viewports.
+
+### Bonus
+- **User Authentication (OAuth):** GitHub OAuth login via NextAuth.js (Auth.js v5). Users can sign in and see their avatar in the header.
+- **Animations:** Premium Framer Motion UI transitions, micro-interactions, hover effects, and animated stat bars.
+- **Server-Side Rendering (SSR):** The initial 20 Pokemon and type list are fetched on the server for faster first loads and better SEO. The page is fully rendered before reaching the client.
 
 ## Technologies Used & Why
 
-1. **Next.js (App Router, Client-side rendering):** Chosen for its robust structure, ease of routing, and to keep the door open for server-side enhancements (SSR) in the future.
-2. **React 19:** Utilized for managing complex UI states (search, filters, favorites, modal) seamlessly.
-3. **Tailwind CSS v4:** Used for styling. It allows for rapid, flexible, and consistent UI design without leaving the component files. Specifically helpful for dark mode and responsive layouts.
-4. **Framer Motion:** Added to elevate the UI with premium, subtle animations that make the application feel alive and dynamic.
-5. **Lucide React:** Chosen for crisp, consistent, and customizable SVG icons.
+1. **Next.js 16 (App Router):** Chosen for its hybrid rendering model (SSR + client interactivity), file-based routing, and production-grade architecture.
+2. **React 19:** Manages complex UI states (search, filters, favorites, modal) with hooks.
+3. **Tailwind CSS v4:** Enables rapid, consistent styling with built-in dark mode and responsive utilities.
+4. **Framer Motion:** Adds premium, subtle animations that make the app feel polished and dynamic.
+5. **NextAuth.js (Auth.js v5):** Provides a simple, secure OAuth flow with GitHub as the provider.
+6. **Lucide React:** Crisp, consistent, and customizable SVG icons.
 
 ## Running the Project Locally
 
 ### Prerequisites
 - Node.js 18+ installed
+- A GitHub OAuth App (for the authentication bonus feature)
 
 ### Setup Instructions
 
-1. **Clone the repository / Navigate to the folder**
+1. **Clone the repository**
    ```bash
-   cd "New folder (5)" # Or your designated project root
+   git clone <your-repo-url>
+   cd pokedex-lite
    ```
 
 2. **Install Dependencies**
-   Run the following command to install all necessary packages:
    ```bash
    npm install
    ```
 
-3. **Start the Development Server**
-   Start the local dev server:
+3. **Configure Environment Variables (for OAuth)**
+   Copy the example env file and fill in your credentials:
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Create a GitHub OAuth App at [https://github.com/settings/developers](https://github.com/settings/developers):
+   - Set the **Homepage URL** to `http://localhost:3000`
+   - Set the **Authorization callback URL** to `http://localhost:3000/api/auth/callback/github`
+   
+   Then fill in `.env.local`:
+   ```
+   GITHUB_ID=your_github_client_id
+   GITHUB_SECRET=your_github_client_secret
+   AUTH_SECRET=your_auth_secret  # Generate with: npx auth secret
+   ```
+
+   > **Note:** The app works fully without OAuth configured — the sign-in button will simply not complete the flow.
+
+4. **Start the Development Server**
    ```bash
    npm run dev
    ```
 
-4. **View the Application**
+5. **View the Application**
    Open your browser and navigate to:
    ```
    http://localhost:3000
@@ -54,14 +79,18 @@ A responsive, highly interactive "Pokedex Lite" web application built for the Fr
 
 ## Challenges Faced & Solutions
 
-1. **Handling Pagination with Search/Filters:**
-   - *Challenge:* PokeAPI doesn't support searching or complex filtering alongside pagination natively via server queries.
-   - *Solution:* To provide a fast "Lite" experience, filtering by type triggers a fetch for all Pokemon of that type, which is then paginated locally. A general search fetches a larger batch locally and filters them, avoiding excessive network calls while maintaining a snappy user experience.
+1. **Pagination with Search/Filters:**
+   - *Challenge:* PokeAPI doesn't support searching or complex filtering alongside pagination natively.
+   - *Solution:* Filtering by type fetches all Pokemon of that type and paginates locally. Search fetches a larger batch and filters client-side, maintaining a snappy user experience.
 
-2. **Image Loading from External Domains:**
-   - *Challenge:* Next.js `next/image` requires external domains to be whitelisted for optimization.
-   - *Solution:* Used the `unoptimized` prop specifically for PokeAPI's raw sprite URLs to guarantee they render securely without complicated configuration, leveraging direct CDN speeds.
+2. **Server-Side Rendering with Client Interactivity:**
+   - *Challenge:* The page needs SSR for the initial load (SEO, performance) but also needs rich client-side interactivity (search, filters, favorites).
+   - *Solution:* Split architecture — `page.tsx` is a Server Component that fetches initial data, then passes it to the `PokemonList` client component. The client component hydrates with server data and handles all subsequent interactions.
 
 3. **Hydration Mismatch with `localStorage`:**
-   - *Challenge:* When dealing with Next.js and persisting favorites via `localStorage`, reading it immediately on render can cause hydration mismatches between the server-rendered shell and client content.
-   - *Solution:* Favorites are loaded inside a `useEffect` hook, ensuring the client takes over safely after the initial mount, preventing UI flickering or Next.js console errors.
+   - *Challenge:* Reading `localStorage` during SSR causes hydration mismatches since the server doesn't have access to browser storage.
+   - *Solution:* Favorites are loaded inside a `useEffect` hook, ensuring the client takes over safely after the initial mount.
+
+4. **Image Loading from External Domains:**
+   - *Challenge:* Next.js `next/image` requires external domains to be whitelisted.
+   - *Solution:* Used the `unoptimized` prop for PokeAPI sprite URLs and configured `remotePatterns` in `next.config.ts` for GitHub avatar URLs.
