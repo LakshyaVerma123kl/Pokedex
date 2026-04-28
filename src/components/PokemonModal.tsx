@@ -89,7 +89,7 @@ export function PokemonModal({ pokemonName, onClose }: PokemonModalProps) {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-slate-900"
+            className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl md:max-w-4xl dark:bg-slate-900"
           >
             <button
               onClick={onClose}
@@ -100,20 +100,20 @@ export function PokemonModal({ pokemonName, onClose }: PokemonModalProps) {
 
             {loading ? (
               <div className="flex h-96 items-center justify-center">
-                <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-500 dark:border-slate-800 dark:border-t-blue-400" />
+                 <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-blue-500 dark:border-slate-800 dark:border-t-blue-400" />
               </div>
             ) : error ? (
               <div className="flex h-96 items-center justify-center p-8 text-center text-red-500">
                 {error}
               </div>
             ) : details ? (
-              <div className="flex max-h-[85vh] flex-col overflow-y-auto">
-                <div className="relative flex h-64 items-center justify-center bg-slate-50 p-8 dark:bg-slate-800/50">
+              <div className="flex max-h-[85vh] flex-col overflow-y-auto md:flex-row md:overflow-hidden">
+                <div className="relative flex h-64 shrink-0 items-center justify-center bg-slate-50 p-8 md:h-auto md:w-1/2 md:p-12 dark:bg-slate-800/50">
                   <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.1, duration: 0.4 }}
-                    className="relative h-full w-full"
+                    className="relative h-full w-full max-w-[280px]"
                   >
                     <Image
                       src={
@@ -128,7 +128,7 @@ export function PokemonModal({ pokemonName, onClose }: PokemonModalProps) {
                   </motion.div>
                 </div>
 
-                <div className="p-6 sm:p-8">
+                <div className="p-6 sm:p-8 md:w-1/2 md:overflow-y-auto custom-scrollbar">
                   <div className="mb-6 flex items-end justify-between">
                     <div>
                       <h2 className="text-3xl font-bold capitalize text-slate-900 dark:text-white">
@@ -185,7 +185,7 @@ export function PokemonModal({ pokemonName, onClose }: PokemonModalProps) {
                     <div className="space-y-3">
                       {details.stats.map((s) => (
                         <div key={s.stat.name} className="flex items-center gap-4">
-                          <span className="w-24 text-sm font-medium uppercase text-slate-500 dark:text-slate-400">
+                          <span className="w-28 text-sm font-medium uppercase text-slate-500 dark:text-slate-400">
                             {s.stat.name.replace("-", " ")}
                           </span>
                           <div className="flex h-2.5 flex-1 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
